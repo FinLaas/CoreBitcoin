@@ -16,6 +16,10 @@ enum
     BTCPublicKeyAddressVersionTestnet  = 111,
     BTCPrivateKeyAddressVersionTestnet = 239,
     BTCScriptHashAddressVersionTestnet = 196,
+    
+    LTCPublicKeyAddressVersion         = 48,
+    LTCPublicKeyAddressVersionTestnet  = 111,
+    LTCPrivateKeyAddressVersion        = 176,
 };
 
 @implementation BTCAddress {
@@ -41,7 +45,7 @@ enum
 
 - (void) dealloc {
     // The data may be retained by someone and should not be cleared like that.
-//    [self clear];
+    //    [self clear];
     if (_cstring) free(_cstring);
 }
 
@@ -73,20 +77,20 @@ enum
     if (composedData.length < 2) return nil;
     
     uint8_t version = ((unsigned char*)composedData.bytes)[0];
-
+    
     NSDictionary* classes = [self registeredAddressClasses];
     Class cls = classes[@(version)];
     BTCAddress* address = [cls addressWithComposedData:composedData cstring:cstring version:version];
     if (!address) {
         NSLog(@"BTCAddress: unknown address version: %d", version);
     }
-
+    
     // Verify that address is compatible with the class being invoked.
     // So if someone asked to parse P2PKH address with P2SH string, they will get nil instead of P2SH instance.
     if (![address isKindOfClass:self]) {
         return nil;
     }
-
+    
     // Securely erase decoded address data
     BTCDataClear(composedData);
     
@@ -99,7 +103,7 @@ enum
         free(_cstring);
         _cstring = NULL;
     }
-
+    
     if (cstring) {
         size_t len = strlen(cstring) + 1; // with \0
         _cstring = malloc(len);
@@ -252,8 +256,67 @@ enum
 
 @end
 
+@implementation LTCPublicKeyAddress
 
++ (instancetype) addressWithString:(NSString*)string {
+    return [self ltcAddressWithBase58CString:[string cStringUsingEncoding:NSASCIIStringEncoding]];
+}
 
++ (id) ltcAddressWithBase58CString:(const char*)cstring {
+    NSMutableData* composedData = BTCDataFromBase58CheckCString(cstring);
+    if (!composedData) return nil;
+    if (composedData.length < 2) return nil;
+    
+    uint8_t version = ((unsigned char*)composedData.bytes)[0];
+    
+    NSDictionary* classes = [self registeredAddressClasses];
+    Class cls = classes[@(version)];
+    BTCAddress* address = [cls addressWithComposedData:composedData cstring:cstring version:version];
+    if (!address) {
+        NSLog(@"BTCAddress: unknown address version: %d", version);
+    }
+    
+    // Verify that address is compatible with the class being invoked.
+    // So if someone asked to parse P2PKH address with P2SH string, they will get nil instead of P2SH instance.
+    //    if (![address isKindOfClass:self]) {
+    //        return nil;
+    //    }
+    
+    // Securely erase decoded address data
+    BTCDataClear(composedData);
+    
+    return address;
+}
+
++ (void) load {
+    [BTCAddress registerAddressClass:self version:[self BTCVersionPrefix]];
+}
+
++ (uint8_t) BTCVersionPrefix {
+    return LTCPublicKeyAddressVersion;
+}
+
+- (BOOL) isTestnet {
+    return NO;
+}
+
+@end
+
+@implementation LTCPublicKeyAddressTestnet
+
++ (void) load {
+    [BTCAddress registerAddressClass:self version:[self BTCVersionPrefix]];
+}
+
++ (uint8_t) BTCVersionPrefix {
+    return LTCPublicKeyAddressVersionTestnet;
+}
+
+- (BOOL) isTestnet {
+    return YES;
+}
+
+@end
 
 
 
@@ -355,6 +418,26 @@ enum
 
 - (BTCAddress*) publicAddress {
     return [BTCPublicKeyAddressTestnet addressWithData:BTCHash160(self.key.publicKey)];
+}
+
+- (BOOL) isTestnet {
+    return YES;
+}
+
+@end
+
+@implementation LTCPrivateKeyAddress
+
++ (void) load {
+    [BTCAddress registerAddressClass:self version:[self BTCVersionPrefix]];
+}
+
++ (uint8_t) BTCVersionPrefix {
+    return LTCPrivateKeyAddressVersion;
+}
+
+- (BTCAddress*) publicAddress {
+    return [LTCPublicKeyAddress addressWithData:BTCHash160(self.key.publicKey)];
 }
 
 - (BOOL) isTestnet {

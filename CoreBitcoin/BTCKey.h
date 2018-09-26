@@ -6,6 +6,8 @@
 @class BTCCurvePoint;
 @class BTCPublicKeyAddress;
 @class BTCPublicKeyAddressTestnet;
+@class LTCPublicKeyAddress;
+@class LTCPublicKeyAddressTestnet;
 @class BTCPrivateKeyAddress;
 @class BTCPrivateKeyAddressTestnet;
 
@@ -53,6 +55,7 @@
 // Base58-encoded private key (or nil if privkey is not available).
 @property(nonatomic, readonly) NSString* WIF;
 @property(nonatomic, readonly) NSString* WIFTestnet;
+@property(nonatomic, readonly) NSString* LTCWIF;
 
 // When you set public key, this property reflects whether it is compressed or not.
 // To set this property you must have private counterpart. Then, -publicKey will be compressed/uncompressed accordingly.
@@ -99,6 +102,8 @@
 // IMPORTANT: resulting address depends on whether `publicKeyCompressed` is YES or NO.
 @property(nonatomic, readonly) BTCPublicKeyAddress* address;
 @property(nonatomic, readonly) BTCPublicKeyAddressTestnet* addressTestnet;
+@property(nonatomic, readonly) LTCPublicKeyAddress* ltcAddress;
+@property(nonatomic, readonly) LTCPublicKeyAddressTestnet* ltcAddressTestnet;
 
 // Returns address for a public key (Hash160(pubkey)).
 @property(nonatomic, readonly) BTCPublicKeyAddress* uncompressedPublicKeyAddress;

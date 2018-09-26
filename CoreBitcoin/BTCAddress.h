@@ -10,8 +10,8 @@
 // 4. Script address (P2SH). Example: 3NukJ6fYZJ5Kk8bPjycAnruZkE5Q7UW7i8.
 //
 // Testnet addresses are also supported with the following subclasses:
-//   BTCPublicKeyAddressTestnet, 
-//   BTCPrivateKeyAddressTestnet, 
+//   BTCPublicKeyAddressTestnet,
+//   BTCPrivateKeyAddressTestnet,
 //   BTCScriptHashAddressTestnet.
 //
 @class BTCKey;
@@ -84,6 +84,10 @@
 @end
 @interface BTCPublicKeyAddressTestnet : BTCPublicKeyAddress
 @end
+@interface LTCPublicKeyAddress : BTCPublicKeyAddress
+@end
+@interface LTCPublicKeyAddressTestnet : LTCPublicKeyAddress
+@end
 
 
 // Private key in WIF format (5KQntKuhYWSRXNq... or L3p8oAcQTtuokSC..., base58-encoded)
@@ -99,6 +103,8 @@
 + (nullable instancetype) addressWithData:(nullable NSData*)data publicKeyCompressed:(BOOL)compressedPubkey;
 @end
 @interface BTCPrivateKeyAddressTestnet : BTCPrivateKeyAddress
+@end
+@interface LTCPrivateKeyAddress : BTCPrivateKeyAddress
 @end
 
 // P2SH address (e.g. 3NukJ6fYZJ5Kk8bPjycAnruZkE5Q7UW7i8)
